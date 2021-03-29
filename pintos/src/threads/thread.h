@@ -146,7 +146,7 @@ int thread_get_recent_cpu (void);
 int thread_get_load_avg (void);
 
 /*ADD*/
-bool priority_cmp(struct list_elem *ele,const struct list_elem *e,void *aux);
+bool thread_priority_cmp(struct list_elem *ele,const struct list_elem *e,void *aux);
 //ADDU
 void thread_donate_priority(struct thread *lower,int new_pri);
 void thread_return_priority(struct thread *lower);
