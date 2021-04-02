@@ -25,6 +25,7 @@ struct lock
 
     //ADDU
     int lock_priority;
+    struct list_elem elem;
     //END_ADDU
   };
 

@@ -353,6 +353,7 @@ void
 thread_set_priority (int new_priority) 
 {
   thread_current ()->priority = new_priority;
+  thread_current()->original_priority = new_priority;
   /* ADD2 : re-schedule*/
   thread_yield();
 }
@@ -485,6 +486,12 @@ init_thread (struct thread *t, const char *name, int priority)
   /*ADD: initialize of blocked ticks */
   t->blocked_ticks = 0;
 
+  //ADD TASK2:INITIALIZE
+  t->original_priority = priority;
+  list_init(&t->locks_hold);
+  t->lock_waiting = NULL;
+
+
   old_level = intr_disable ();
   // list_push_back (&all_list, &t->allelem);
   list_insert_ordered (&all_list, &t->allelem, (list_less_func *) &thread_priority_cmp, NULL);
@@ -611,15 +618,15 @@ bool thread_priority_cmp(struct list_elem *ele,const struct list_elem *e,void *a
     > list_entry (e, struct thread, elem)->priority;
 
 }
-//ADDU
-void thread_donate_priority(struct thread *lower,int new_pri){
+
+//ADD TASK2
+void thread_priority_donate(struct thread *thread,int new_priority){
   enum intr_level old_level = intr_disable ();
-  lower->base_priority = lower->priority;
-  lower->priority = new_pri;
+  thread->priority = new_priority;
+  if(thread->status==THREAD_READY){
+    list_remove(&thread->elem);
+    list_insert_ordered (&ready_list, &thread->elem, (list_less_func *) &thread_priority_cmp, NULL);
+  }
   intr_set_level (old_level);
-}
-void thread_return_priority(struct thread *lower){
-  enum intr_level old_level = intr_disable ();
-  lower->priority = lower->base_priority;
-  intr_set_level (old_level);
+
 }

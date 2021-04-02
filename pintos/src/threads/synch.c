@@ -183,7 +183,7 @@ lock_init (struct lock *lock)
 
   lock->holder = NULL;
   sema_init (&lock->semaphore, 1);
-  //ADDU
+  //ADD TASK2
   lock->lock_priority = 0;
 }
 
@@ -201,12 +201,22 @@ lock_acquire (struct lock *lock)
   ASSERT (lock != NULL);
   ASSERT (!intr_context ());
   ASSERT (!lock_held_by_current_thread (lock));
-  //ADDU
-  // if(lock->lock_priority<thread_get_priority()){
-  //   thread_donate_priority(&lock->holder,thread_get_priority());
-  // }
-  //END
+  //ADD TASK2
+
+  struct thread *curr = thread_current();
+
+  if(lock->holder!=NULL&&!thread_mlfqs){
+    curr->lock_waiting = lock;
+    //!!!!!change to while loop
+    if(lock->lock_priority<curr->priority){
+      lock->lock_priority = curr->priority;
+      thread_priority_donate(lock->holder,curr->priority);
+
+    }
+  }
+  
   sema_down (&lock->semaphore);
+  //!!!!!add to list
   lock->holder = thread_current ();
 
   //ADDU
@@ -244,10 +254,10 @@ lock_release (struct lock *lock)
   ASSERT (lock != NULL);
   ASSERT (lock_held_by_current_thread (lock));
 
-
-  //ADDU
-  // thread_return_priority(&lock->holder);
-  //END
+  //!!!!!
+  struct thread *curr = thread_current();
+  curr->priority = curr->original_priority;
+  //!!!!!
   lock->holder = NULL;
   sema_up (&lock->semaphore);
   
