@@ -204,14 +204,15 @@ lock_acquire (struct lock *lock)
   //ADD TASK2
 
   struct thread *curr = thread_current();
+  struct lock *ptr = lock;
 
   if(lock->holder!=NULL&&!thread_mlfqs){
     curr->lock_waiting = lock;
     //!!!!!change to while loop
-    if(lock->lock_priority<curr->priority){
-      lock->lock_priority = curr->priority;
-      thread_priority_donate(lock->holder,curr->priority);
-
+    while(ptr!=NULL&&ptr->lock_priority<curr->priority){
+      ptr->lock_priority = curr->priority;
+      thread_priority_donate(ptr->holder,curr->priority);
+      ptr = ptr->holder->lock_waiting;
     }
   }
   
