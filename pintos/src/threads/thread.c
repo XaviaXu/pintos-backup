@@ -352,21 +352,9 @@ void check_ticks(struct thread *curr,void *aux){
 void
 thread_set_priority (int new_priority) 
 {
-  if(thread_mlfqs){
-    return;
-  }
-  enum intr_level old_level = intr_disable();
-  struct thread *curr = thread_current();
-  curr->original_priority = new_priority;
-  
-  if(list_empty(&curr->locks_hold)||new_priority>curr->priority){
-    curr->priority = new_priority;
-    thread_yield();
-  } 
+  thread_current ()->priority = new_priority;
   /* ADD2 : re-schedule*/
- 
-
-  intr_set_level(old_level);
+  thread_yield();
 }
 
 /* Returns the current thread's priority. */
@@ -496,12 +484,7 @@ init_thread (struct thread *t, const char *name, int priority)
   t->magic = THREAD_MAGIC;
   /*ADD: initialize of blocked ticks */
   t->blocked_ticks = 0;
-
-  //ADD TASK2:INITIALIZE
-  t->original_priority = priority;
-  list_init(&t->locks_hold);
-  t->lock_waiting = NULL;
-
+  t->base_priority = priority;
 
   old_level = intr_disable ();
   // list_push_back (&all_list, &t->allelem);
@@ -629,15 +612,14 @@ bool thread_priority_cmp(struct list_elem *ele,const struct list_elem *e,void *a
     > list_entry (e, struct thread, elem)->priority;
 
 }
-
-//ADD TASK2
-void thread_priority_donate(struct thread *thread,int new_priority){
+//ADDU
+void donate(struct thread *t){
   enum intr_level old_level = intr_disable ();
-  thread->priority = new_priority;
-  if(thread->status==THREAD_READY){
-    list_remove(&thread->elem);
-    list_insert_ordered (&ready_list, &thread->elem, (list_less_func *) &thread_priority_cmp, NULL);
+
+  if (t->status == THREAD_READY)
+  {
+    list_remove (&t->elem);
+    list_insert_ordered (&ready_list, &t->elem, thread_priority_cmp, NULL);
   }
   intr_set_level (old_level);
-
 }

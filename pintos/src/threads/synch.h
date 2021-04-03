@@ -25,7 +25,6 @@ struct lock
 
     //ADDU
     int lock_priority;
-    struct list_elem elem;
     //END_ADDU
   };
 
@@ -48,8 +47,6 @@ void cond_broadcast (struct condition *, struct lock *);
 
 //add
 bool sema_priority_cmp(struct list_elem *ele,const struct list_elem *e,void *aux);
-bool lock_priority_cmp(struct list_elem *ele,const struct list_elem *e,void *aux);
-
 
 /* Optimization barrier.
 

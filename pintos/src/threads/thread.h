@@ -96,12 +96,7 @@ struct thread
 
     /* ADD: blocked_ticks*/
     int64_t blocked_ticks;
-    // ADD TASK2
-    int original_priority;
-    struct list locks_hold;
-    struct lock *lock_waiting;
-
-
+    int base_priority;
 #ifdef USERPROG
     /* Owned by userprog/process.c. */
     uint32_t *pagedir;                  /* Page directory. */
@@ -152,7 +147,7 @@ int thread_get_load_avg (void);
 
 /*ADD*/
 bool thread_priority_cmp(struct list_elem *ele,const struct list_elem *e,void *aux);
-//ADD TASK2
-void thread_priority_donate(struct thread *thread,int new_priority);
+//ADDU
 
+void donate(struct thread *t);
 #endif /* threads/thread.h */
