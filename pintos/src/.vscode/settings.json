@@ -1,5 +1,7 @@
 {
     "files.associations": {
-        "list.h": "c"
+        "list.h": "c",
+        "timer.h": "c",
+        "fixed_point.h": "c"
     }
 }

@@ -101,6 +101,10 @@ struct thread
     struct list locks_hold;
     struct lock *lock_waiting;
 
+    // ADD TASK3
+    fixed_t nice;
+    fixed_t recent_cpu;
+
 
 #ifdef USERPROG
     /* Owned by userprog/process.c. */
@@ -154,5 +158,9 @@ int thread_get_load_avg (void);
 bool thread_priority_cmp(struct list_elem *ele,const struct list_elem *e,void *aux);
 //ADD TASK2
 void thread_priority_donate(struct thread *thread,int new_priority);
-
+//ADD TASK3
+void update_load_avg(void);
+void thread_update_priority(struct thread *t,void* aux);
+void thread_update_recent_cpu(struct thread* t,void* aux);
+void running_update_recent_cpu(void);
 #endif /* threads/thread.h */
