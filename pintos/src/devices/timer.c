@@ -182,20 +182,24 @@ static void
 timer_interrupt (struct intr_frame *args UNUSED)
 { 
   ticks++;
-  /*ADD: loop all threads*/
-  thread_foreach(check_ticks,NULL);
-  thread_tick ();
+  enum intr_level old_level = intr_disable();
+
   //ADD TASK3
   if(thread_mlfqs){
     running_update_recent_cpu();
-    if(ticks%TIMER_FREQ==0){
+    if(ticks%TIMER_FREQ == 0){
       update_load_avg();
       thread_foreach(thread_update_recent_cpu,NULL);
-    }else if(ticks%4==0){
+    }else if(ticks%4 == 0){
       thread_foreach(thread_update_priority,NULL);
     }
-
   }
+  /*ADD: loop all threads*/
+  thread_foreach(check_ticks,NULL);
+
+  intr_set_level(old_level);
+
+  thread_tick ();
 }
 
 /* Returns true if LOOPS iterations waits for more than one timer
