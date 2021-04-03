@@ -156,5 +156,5 @@ void thread_update_priority (struct thread *);
 void thread_mlfqs_increase_recent_cpu_by_one (void);
 void thread_mlfqs_update_priority (struct thread *);
 void thread_mlfqs_update_load_avg_and_recent_cpu (void);
-
+void thread_priority_donate(struct thread *thread,int new_priority);
 #endif /* threads/thread.h */
