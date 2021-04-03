@@ -102,7 +102,7 @@ struct thread
     struct lock *lock_waiting;
 
     // ADD TASK3
-    fixed_t nice;
+    int nice;
     fixed_t recent_cpu;
 
 

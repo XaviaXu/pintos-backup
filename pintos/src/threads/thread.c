@@ -385,8 +385,8 @@ void
 thread_set_nice (int nice) 
 {
   thread_current()->nice = nice;
-  //calculate pri (yield)
-
+  thread_update_priority(thread_current(),NULL);
+  thread_yield();
 }
 
 /* Returns the current thread's nice value. */
@@ -654,8 +654,9 @@ void thread_priority_donate(struct thread *thread,int new_priority){
 void update_load_avg(void){
   
   size_t ready_threads = list_size (&ready_list);
-  if (thread_current () != idle_thread)
+  if (thread_current () != idle_thread){
     ready_threads++;
+  }    
   load_avg = FP_ADD (FP_DIV_MIX (FP_MULT_MIX (load_avg, 59), 60), FP_DIV_MIX (FP_CONST (ready_threads), 60));
 
 }
@@ -663,9 +664,7 @@ void update_load_avg(void){
 void thread_update_priority(struct thread *t,void* aux){
   if (t == idle_thread){
     return;
-  }   
-  // ASSERT (thread_mlfqs);
-  // ASSERT (t != idle_thread);
+  } 
   t->priority = FP_INT_PART (FP_SUB_MIX (FP_SUB (FP_CONST (PRI_MAX), FP_DIV_MIX (t->recent_cpu, 4)), 2 * t->nice));
   t->priority = t->priority < PRI_MIN ? PRI_MIN : t->priority;
   t->priority = t->priority > PRI_MAX ? PRI_MAX : t->priority;
@@ -678,5 +677,7 @@ void thread_update_recent_cpu(struct thread* t,void* aux){
 }
 void running_update_recent_cpu(void){
   struct thread *curr = thread_current();
-   curr->recent_cpu = FP_ADD_MIX (curr->recent_cpu, 1);
+  if(curr!=idle_thread){
+    curr->recent_cpu = FP_ADD_MIX (curr->recent_cpu, 1);
+  }
 }
