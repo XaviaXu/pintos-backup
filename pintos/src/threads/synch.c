@@ -115,13 +115,16 @@ sema_up (struct semaphore *sema)
   ASSERT (sema != NULL);
 
   old_level = intr_disable ();
-  if (!list_empty (&sema->waiters)) 
-    thread_unblock (list_entry (list_pop_front (&sema->waiters),
-                                struct thread, elem));
+  if (!list_empty (&sema->waiters)){
+    list_sort (&sema->waiters, thread_priority_cmp, NULL);
+    thread_unblock (list_entry (list_pop_front (&sema->waiters), struct thread, elem));
+
+  }
+  
   sema->value++;
-  intr_set_level (old_level);
-  //ADD2U
   thread_yield();
+
+  intr_set_level (old_level); 
 }
 
 static void sema_test_helper (void *sema_);
@@ -275,28 +278,37 @@ lock_release (struct lock *lock)
   ASSERT (lock != NULL);
   ASSERT (lock_held_by_current_thread (lock));
 
-  //!!!!!
-  struct thread *curr = thread_current();
-  struct list_elem *maximum;
+ 
   ///
   enum intr_level old_level = intr_disable ();
-  int new_priority = curr->original_priority;
-  list_remove (&lock->elem);
-  if(!list_empty(&curr->locks_hold)){
-    maximum = list_max (&curr->locks_hold, &lock_priority_cmp, NULL);
-    if(list_entry(maximum,struct lock,elem)->lock_priority>new_priority){
-      new_priority = list_entry(maximum,struct lock,elem)->lock_priority;
+  struct thread *curr = thread_current();
+
+  if (!thread_mlfqs){
+    list_remove (&lock->elem);
+
+    struct thread *curr = thread_current();
+    int max_priority = curr->original_priority;
+    int lock_priority;
+
+    if (!list_empty (&curr->locks_hold))
+    {
+      list_sort (&curr->locks_hold, lock_priority_cmp, NULL);
+      lock_priority = list_entry (list_front (&curr->locks_hold), struct lock, elem)->lock_priority;
+      if (lock_priority > max_priority)
+        max_priority = lock_priority;
     }
+
+    curr->priority = max_priority;
   }
-  curr->priority = new_priority;
 
 
   ///
-  intr_set_level (old_level);
+  
 
   //!!!!!
   lock->holder = NULL;
   sema_up (&lock->semaphore);
+  intr_set_level (old_level);
   
 }
 
