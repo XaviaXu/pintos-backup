@@ -398,8 +398,9 @@ cond_signal (struct condition *cond, struct lock *lock UNUSED)
   struct list_elem *maximum;
   if (!list_empty (&cond->waiters)) 
     maximum = list_max (&cond->waiters, &sema_priority_cmp, NULL);
-    sema_up (&list_entry (maximum,struct semaphore_elem, elem)->semaphore);
     list_remove (maximum); 
+    sema_up (&list_entry (maximum,struct semaphore_elem, elem)->semaphore);
+    
 }
 
 /* Wakes up all threads, if any, waiting on COND (protected by
