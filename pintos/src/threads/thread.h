@@ -94,18 +94,6 @@ struct thread
     /* Shared between thread.c and synch.c. */
     struct list_elem elem;              /* List element. */
 
-    /* ADD: blocked_ticks*/
-    int64_t blocked_ticks;
-    // ADD TASK2
-    int original_priority;
-    struct list locks_hold;
-    struct lock *lock_waiting;
-
-    // ADD TASK3
-    int nice;
-    fixed_t recent_cpu;
-
-
 #ifdef USERPROG
     /* Owned by userprog/process.c. */
     uint32_t *pagedir;                  /* Page directory. */
@@ -142,9 +130,6 @@ void thread_yield (void);
 /* Performs some operation on thread t, given auxiliary data AUX. */
 typedef void thread_action_func (struct thread *t, void *aux);
 void thread_foreach (thread_action_func *, void *);
-/*ADD: tick check*/
-void check_ticks(struct thread* curr,void *aux);
-
 
 int thread_get_priority (void);
 void thread_set_priority (int);
@@ -154,13 +139,4 @@ void thread_set_nice (int);
 int thread_get_recent_cpu (void);
 int thread_get_load_avg (void);
 
-/*ADD*/
-bool thread_priority_cmp(struct list_elem *ele,const struct list_elem *e,void *aux);
-//ADD TASK2
-void thread_priority_donate(struct thread *thread,int new_priority);
-//ADD TASK3
-void update_load_avg(void);
-void thread_update_priority(struct thread *t,void* aux);
-void thread_update_recent_cpu(struct thread* t,void* aux);
-void running_update_recent_cpu(void);
 #endif /* threads/thread.h */
