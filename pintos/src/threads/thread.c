@@ -208,7 +208,7 @@ thread_create (const char *name, int priority,
   /* Add to run queue. */
   thread_unblock (t);
 
-  /* ADD2 */
+  /* ADD TASK2 */
   if(thread_current()->priority<priority){
     thread_yield();
   }
@@ -369,7 +369,7 @@ thread_set_priority (int new_priority)
     curr->priority = new_priority;
     thread_yield();
   } 
-  /* ADD2 : re-schedule*/
+
   intr_set_level(old_level);
 }
 
@@ -511,7 +511,6 @@ init_thread (struct thread *t, const char *name, int priority)
   t->recent_cpu = FP_CONST(0);
   t->nice = 0;
 
-
   old_level = intr_disable ();
   // list_push_back (&all_list, &t->allelem);
   list_insert_ordered (&all_list, &t->allelem, (list_less_func *) &thread_priority_cmp, NULL);
@@ -632,14 +631,14 @@ allocate_tid (void)
    Used by switch.S, which can't figure it out on its own. */
 uint32_t thread_stack_ofs = offsetof (struct thread, stack);
 
-/* ADD2: the comparison on priority*/
+/* ADD TASK2: the comparison on priority*/
 bool thread_priority_cmp(struct list_elem *ele,const struct list_elem *e,void *aux){
   return list_entry (ele, struct thread, elem)->priority 
     > list_entry (e, struct thread, elem)->priority;
 
 }
 
-//ADD TASK2
+//ADD TASK2: priority donation
 void thread_priority_donate(struct thread *thread,int new_priority){
   enum intr_level old_level = intr_disable ();
   thread->priority = new_priority;
